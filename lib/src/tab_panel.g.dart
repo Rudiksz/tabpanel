@@ -42,13 +42,13 @@ mixin _$TabPanel on TabPanelBase, Store {
   final _$tabsAtom = Atom(name: 'TabPanelBase.tabs');
 
   @override
-  ObservableList<dynamic> get tabs {
+  ObservableList<Tab> get tabs {
     _$tabsAtom.reportRead();
     return super.tabs;
   }
 
   @override
-  set tabs(ObservableList<dynamic> value) {
+  set tabs(ObservableList<Tab> value) {
     _$tabsAtom.reportWrite(value, super.tabs, () {
       super.tabs = value;
     });
