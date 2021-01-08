@@ -1,0 +1,20 @@
+name: tabpanel
+description: Nestable panels with support for tabs and pages
+version: 0.0.1
+author: Rudolf Martincsek
+homepage:
+
+environment:
+  sdk: '>=2.9.0-0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  uuid: ^2.2.2
+  mobx: 
+  flutter_mobx:
+
+dev_dependencies:
+  build_runner:
+  mobx_codegen: ^1.0.0
+  pedantic: ^1.0.0
