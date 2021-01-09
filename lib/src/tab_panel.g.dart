@@ -181,55 +181,25 @@ mixin _$TabPanel on TabPanelBase, Store {
   }
 
   @override
-  void moveTab(String tabId, TabPosition position) {
-    final _$actionInfo = _$TabPanelBaseActionController.startAction(
-        name: 'TabPanelBase.moveTab');
-    try {
-      return super.moveTab(tabId, position);
-    } finally {
-      _$TabPanelBaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void newTab(
       {Widget page,
-      IconData iconData = Icons.tab,
-      Widget icon,
-      String title = '',
       String tabId = '',
       TabPosition position = TabPosition.after}) {
     final _$actionInfo =
         _$TabPanelBaseActionController.startAction(name: 'TabPanelBase.newTab');
     try {
-      return super.newTab(
-          page: page,
-          iconData: iconData,
-          icon: icon,
-          title: title,
-          tabId: tabId,
-          position: position);
+      return super.newTab(page: page, tabId: tabId, position: position);
     } finally {
       _$TabPanelBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void pushPage(
-      {Widget page,
-      IconData iconData = Icons.tab,
-      Widget icon,
-      String title = '',
-      bool forceNewTab = false}) {
+  void pushPage({Widget page, bool forceNewTab = false}) {
     final _$actionInfo = _$TabPanelBaseActionController.startAction(
         name: 'TabPanelBase.pushPage');
     try {
-      return super.pushPage(
-          page: page,
-          iconData: iconData,
-          icon: icon,
-          title: title,
-          forceNewTab: forceNewTab);
+      return super.pushPage(page: page, forceNewTab: forceNewTab);
     } finally {
       _$TabPanelBaseActionController.endAction(_$actionInfo);
     }

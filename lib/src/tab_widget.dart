@@ -37,21 +37,21 @@ class TabWidget extends StatelessWidget {
       title = tabPage.title ?? lastPage.runtimeType.toString();
     } else {
       icon = defaultIcon;
-      title = lastPage.runtimeType.toString();
+      title = lastPage?.runtimeType?.toString() ?? 'Tab';
     }
 
     final _tab = Container(
       decoration: BoxDecoration(
           color: selected
-              ? Theme.of(context).colorScheme.surface
-              : Theme.of(context).colorScheme.surface.withOpacity(0.5),
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+              : Theme.of(context).colorScheme.surface,
           border: Border.symmetric(
             vertical: BorderSide(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
             ),
           )),
       child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: 42),
+        constraints: BoxConstraints(minHeight: 40),
         child: Observer(builder: (context) {
           return Row(
             children: [

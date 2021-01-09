@@ -64,19 +64,11 @@ mixin _$Tab on TabBase, Store {
   }
 
   @override
-  void push(Widget page,
-      {IconData iconData = Icons.tab,
-      Widget icon,
-      String title = '',
-      bool forceNewTab = false}) {
+  void push(Widget page, {bool forceNewTab = false}) {
     final _$actionInfo =
         _$TabBaseActionController.startAction(name: 'TabBase.push');
     try {
-      return super.push(page,
-          iconData: iconData,
-          icon: icon,
-          title: title,
-          forceNewTab: forceNewTab);
+      return super.push(page, forceNewTab: forceNewTab);
     } finally {
       _$TabBaseActionController.endAction(_$actionInfo);
     }

@@ -14,6 +14,7 @@ abstract class TabPanelBase with Store {
   @observable
   String id = uuid.v4().toString();
 
+  /// The parent panel
   TabPanel parent;
 
   /// The layout constraints are used to check when to recalculate the sizes of the
@@ -26,11 +27,17 @@ abstract class TabPanelBase with Store {
     this.panelSizes,
     List<Tab> tabs,
     this.axis = Axis.horizontal,
-    this.defaultPage,
+    @required this.defaultPage,
   }) {
+    assert(
+      defaultPage != null,
+      'A TabPanel should have a default page set that allows the user to navigate,'
+      ' to your pages. It can be a landing page, your home page, a menu, etc...',
+    );
     this.tabs = tabs?.asObservable() ?? <Tab>[].asObservable();
   }
 
+  /// Widget to display when a new tab is opened in this tab
   Widget defaultPage;
 
   /// Child panels
@@ -49,6 +56,7 @@ abstract class TabPanelBase with Store {
   @observable
   int selectedTab = 0;
 
+  /// The axis along which the child panel will be rendered
   @observable
   Axis axis = Axis.horizontal;
 
@@ -103,18 +111,21 @@ abstract class TabPanelBase with Store {
   void selectTab(String id) =>
       selectedTab = tabs.indexWhere((element) => element.id == id);
 
+  /// Close the tab with the [id]. This does not respect the [locked] values
   @action
   void closeTab(String id) {
     tabs.removeWhere((t) => t.id == id);
     selectedTab = tabs.isNotEmpty ? min(selectedTab, tabs.length - 1) : 0;
   }
 
+  /// Close all tabs other than the one having [id]. Locked tabs are not closed.
   @action
   void closeOtherTabs(String id) {
     tabs.removeWhere((t) => !t.locked && t.id != id);
     selectedTab = tabs.indexWhere((t) => t.id == id);
   }
 
+  /// Close all tabs to the right of the one with [id]. Locked tabs are not closed.
   @action
   void closeRight(String id) {
     final index = tabs.indexWhere((t) => t.id == id);
@@ -123,6 +134,7 @@ abstract class TabPanelBase with Store {
     selectedTab = index;
   }
 
+  /// Close all tabs to the left of the one with [id]. Locked tabs are not closed.
   @action
   void closeLeft(String id) {
     final index = tabs.indexWhere((t) => t.id == id);
@@ -131,6 +143,7 @@ abstract class TabPanelBase with Store {
     selectedTab = tabs.indexWhere((t) => t.id == id);
   }
 
+  /// Close the panel including all its tabs
   @action
   void closePanel() {
     parent?.panels?.removeWhere((element) => element.id == id);
@@ -151,9 +164,11 @@ abstract class TabPanelBase with Store {
     }
   }
 
+  /// Callback to check if a dragged [tab] is acceptable by the current panel.
   bool willAcceptTab(Tab tab) =>
       (panels?.isEmpty ?? true) && id != tab.panel.id;
 
+  /// Move the dragged [tab] to this panel.
   void acceptTab(Tab tab) {
     tab.panel.closeTab(tab.id);
     tabs.add(tab);
@@ -161,34 +176,10 @@ abstract class TabPanelBase with Store {
     tab.panel = this;
   }
 
-  @action
-  void moveTab(String tabId, TabPosition position) {
-    position ??= TabPosition.after;
-    final tabIndex = tabs.indexWhere((t) => t.id == tabId);
-    final panelIndex = parent.panels.indexWhere((p) => p.id == id);
-
-    if (tabIndex == -1 && panelIndex == -1 ||
-        (position == TabPosition.after && panelIndex == parent.panels.length) ||
-        (position == TabPosition.before && panelIndex == 0)) {
-      return;
-    }
-
-    final newPanel = parent.panels[
-        position == TabPosition.before ? panelIndex - 1 : panelIndex + 1];
-
-    newPanel.tabs.add(tabs[tabIndex]);
-    tabs[tabIndex].panel = newPanel;
-    newPanel.selectedTab = newPanel.tabs.length - 1;
-    tabs.removeAt(tabIndex);
-    selectedTab = max(0, min(selectedTab, tabs.length - 1));
-  }
-
+  /// Open a new tab with [page] as the body.
   @action
   void newTab({
     Widget page,
-    IconData iconData = Icons.tab,
-    Widget icon,
-    String title = '',
     String tabId = '',
     TabPosition position = TabPosition.after,
   }) {
@@ -211,26 +202,21 @@ abstract class TabPanelBase with Store {
     );
   }
 
+  /// Push a [page] to the current tab.
   @action
   void pushPage({
     Widget page,
-    IconData iconData = Icons.tab,
-    Widget icon,
-    String title = '',
     bool forceNewTab = false,
   }) {
     if (tabs.isNotEmpty && !tabs[selectedTab].locked && !forceNewTab) {
       tabs[selectedTab].pages.add(page ?? defaultPage);
     } else {
-      newTab(
-        iconData: iconData,
-        icon: icon,
-        title: title,
-        page: page ?? defaultPage,
-      );
+      newTab(page: page ?? defaultPage);
     }
   }
 
+  /// Calculates the sizes of the child panel when they change, or when the parent
+  /// viewport dimensions change
   void calculatePanelSizes(BoxConstraints constraints, double dividerWidth) {
     if (panels?.isEmpty ?? true) return;
 
@@ -276,6 +262,7 @@ abstract class TabPanelBase with Store {
     }
   }
 
+  /// Resize the child panels when the user is draggin the using the panel dividers.
   @action
   void updateSize(int index, DragUpdateDetails dragDetails) {
     final delta =
@@ -291,6 +278,27 @@ abstract class TabPanelBase with Store {
 /// Used to specify where new tab panels or tabs should be inserted relative to the current one
 enum TabPosition { before, after }
 
+/// Mixin to set the [icon], and [title] of the tab when displaying the widget in the body.
+///
+///
+/// Example:
+/// ```
+/// class PageB extends StatelessWidget with TabPageMixin {
+///   @override
+///   final String title = 'PageB';
+///
+///   @override
+///   final Icon icon = const Icon(Icons.dashboard);
+///
+///   @override
+///   final IconData iconData = Icons.dashboard;
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     return Placeholder();
+///   }
+/// }
+/// ```
 mixin TabPageMixin {
   final Widget icon = Icon(null);
   final IconData iconData = null;

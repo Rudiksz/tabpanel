@@ -11,41 +11,18 @@ import 'tab_widget.dart';
 /// Displays a tab panel. Tab panels can be split horizontally or vertically
 /// and can nest indefinitely.
 ///
-/// Requires a material ancestor widget.
-///
 /// You should hold on to a reference of the root panel separately to prevent
-/// hotreload from resetting your state.
+/// hot-reload from resetting your state.
 ///
 /// ```dart
 /// void main() async {
-///   final tabPanel = TabPanel();
+///   final tabPanel = TabPanel(defaultPage: YourDefaultPage());
 
-///   runApp(MaterialApp(
-///     debugShowCheckedModeBanner: false,
-///     home: HomeWidget(tabPanel: tabPanel),
-///   ));
-/// }
-
-/// class HomeWidget extends StatelessWidget {
-///   const HomeWidget({
-///     Key? key,
-///     required this.tabPanel,
-///   }) : super(key: key);
-
-///   final TabPanel tabPanel;
-
-///   @override
-///   Widget build(BuildContext context) {
-///     return Scaffold(
-///       body: TabPanelTheme(
-///         data: TabPanelThemeData(
-///           dividerWidth: 4,
-///           dividerColor: Colors.grey,
-///         ),
-///         child: TabPanelWidget(tabPanel: tabPanel),
-///       ),
-///     );
-///   }
+///   runApp(
+///     MaterialApp(
+///       home: TabPanelWidget(tabPanel),
+///     ),
+///   );
 /// }
 /// ```
 class TabPanelWidget extends StatelessWidget {
@@ -61,136 +38,155 @@ class TabPanelWidget extends StatelessWidget {
     return DragTarget<Tab>(
       onWillAccept: panel.willAcceptTab,
       onAccept: panel.acceptTab,
-      builder: (_, __, ___) => Observer(builder: (_) {
-        final panels = panel.panels;
-        final panelsCount = panels?.length ?? 0;
+      builder: (_, __, ___) => Material(
+        child: Observer(builder: (_) {
+          final panels = panel.panels;
+          final panelsCount = panels?.length ?? 0;
 
-        if (panels?.isNotEmpty ?? false) {
-          return LayoutBuilder(builder: (context, constraints) {
-            final tabPanelTheme = TabPanelTheme.of(context);
+          if (panels?.isNotEmpty ?? false) {
+            return LayoutBuilder(builder: (context, constraints) {
+              final tabPanelTheme = TabPanelTheme.of(context);
 
-            panel.calculatePanelSizes(constraints, tabPanelTheme.dividerWidth);
+              panel.calculatePanelSizes(
+                  constraints, tabPanelTheme.dividerWidth);
 
-            // Store the constraints for later
-            panel.constraints = constraints;
+              // Store the constraints for later
+              panel.constraints = constraints;
 
-            // Create the divider widget
-            final divider = panel.axis == Axis.vertical
-                ? MouseRegion(
-                    cursor: SystemMouseCursors.resizeRow,
-                    child: Container(
-                      height: tabPanelTheme.dividerWidth,
-                      width: constraints.maxWidth,
-                      color: tabPanelTheme.dividerColor,
-                    ),
-                  )
-                : MouseRegion(
-                    cursor: SystemMouseCursors.resizeColumn,
-                    child: Container(
-                      width: tabPanelTheme.dividerWidth,
-                      height: constraints.maxHeight,
-                      color: tabPanelTheme.dividerColor,
-                    ),
-                  );
+              // Create the divider widget
+              final divider = panel.axis == Axis.vertical
+                  ? MouseRegion(
+                      cursor: SystemMouseCursors.resizeRow,
+                      child: Container(
+                        height: tabPanelTheme.dividerWidth,
+                        width: constraints.maxWidth,
+                        color: tabPanelTheme.dividerColor ??
+                            Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.5),
+                      ),
+                    )
+                  : MouseRegion(
+                      cursor: SystemMouseCursors.resizeColumn,
+                      child: Container(
+                        width: tabPanelTheme.dividerWidth,
+                        height: constraints.maxHeight,
+                        color: tabPanelTheme.dividerColor ??
+                            Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.5),
+                      ),
+                    );
 
-            // Create the children panel widgets, separated by the dividers
-            final children = <Widget>[];
-            for (var i = 0; i < panelsCount; i++) {
-              children.add(
-                Observer(builder: (_) {
-                  final size = (panel?.panelSizes?.isNotEmpty ?? false)
-                      ? panel?.panelSizes[i]
-                      : 20.0;
-                  return SizedBox(
-                    height:
-                        panel.axis == Axis.vertical ? size : double.infinity,
-                    width:
-                        panel.axis == Axis.horizontal ? size : double.infinity,
-                    child: i < panels.length
-                        ? TabPanelWidget(panels[i])
-                        : SizedBox.shrink(),
-                  );
-                }),
-              );
-
-              if (i != panelsCount - 1) {
+              // Create the children panel widgets, separated by the dividers
+              final children = <Widget>[];
+              for (var i = 0; i < panelsCount; i++) {
                 children.add(
-                  Draggable(
-                    maxSimultaneousDrags: 1,
-                    child: divider,
-                    axis: panel.axis,
-                    affinity: panel.axis,
-                    feedback: SizedBox.shrink(),
-                    onDragUpdate: (details) => panel.updateSize(i, details),
-                  ),
+                  Observer(builder: (_) {
+                    final size = (panel?.panelSizes?.isNotEmpty ?? false)
+                        ? panel?.panelSizes[i]
+                        : 20.0;
+                    return SizedBox(
+                      height:
+                          panel.axis == Axis.vertical ? size : double.infinity,
+                      width: panel.axis == Axis.horizontal
+                          ? size
+                          : double.infinity,
+                      child: i < panels.length
+                          ? TabPanelWidget(panels[i])
+                          : SizedBox.shrink(),
+                    );
+                  }),
                 );
-              }
-            }
 
-            return panel.axis == Axis.horizontal
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: children,
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: children,
+                if (i != panelsCount - 1) {
+                  children.add(
+                    Draggable(
+                      maxSimultaneousDrags: 1,
+                      child: divider,
+                      axis: panel.axis,
+                      affinity: panel.axis,
+                      feedback: SizedBox.shrink(),
+                      onDragUpdate: (details) => panel.updateSize(i, details),
+                    ),
                   );
-          });
-        }
+                }
+              }
 
-        // -- The panel has no children panel, so we render the tabs instead
-        final selectedTab =
-            panel.tabs.isNotEmpty && panel.selectedTab < panel.tabs.length
-                ? panel.tabs[panel.selectedTab]
-                : null;
+              return panel.axis == Axis.horizontal
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: children,
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: children,
+                    );
+            });
+          }
 
-        return Column(
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.chevron_left),
-                  onPressed: (selectedTab?.pages?.length ?? 0) > 1
-                      ? selectedTab.pop
-                      : null,
-                ),
-                // -- TabBar
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: panel.tabs
-                          .map((tab) => TabWidget(
-                                tab,
-                                selected: tab.id == selectedTab?.id,
-                              ))
-                          .toList(),
+          // -- The panel has no children panel, so we render the tabs instead
+          final selectedTab =
+              panel.tabs.isNotEmpty && panel.selectedTab < panel.tabs.length
+                  ? panel.tabs[panel.selectedTab]
+                  : null;
+
+          return Column(
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.chevron_left),
+                    onPressed: (selectedTab?.pages?.length ?? 0) > 1
+                        ? selectedTab.pop
+                        : null,
+                  ),
+                  // -- TabBar
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: panel.tabs
+                            .map((tab) => TabWidget(
+                                  tab,
+                                  selected: tab.id == selectedTab?.id,
+                                ))
+                            .toList(),
+                      ),
                     ),
                   ),
-                ),
-                _panelMenu(context),
-              ],
-            ),
-            Expanded(
-              child: ParentTab(
-                tab: selectedTab,
-                child: ((selectedTab?.pages?.isNotEmpty ?? false) &&
-                        selectedTab?.pages?.last != null)
-                    ? selectedTab?.pages?.last
-                    : EmptyPanel(panel),
-                // child: selectedTab?.pages?.last?.body ?? EmptyPanel(tabPanel), <- nullsafety version
+                  _panelMenu(context),
+                ],
               ),
-            ),
-          ],
-        );
-      }),
+              Container(
+                height: 1,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(.2),
+              ),
+              Expanded(
+                child: ParentTab(
+                  tab: selectedTab,
+                  child: ((selectedTab?.pages?.isNotEmpty ?? false) &&
+                          selectedTab?.pages?.last != null)
+                      ? selectedTab?.pages?.last
+                      : EmptyPanel(panel),
+                  // child: selectedTab?.pages?.last?.body ?? EmptyPanel(tabPanel), <- nullsafety version
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
     );
   }
 
   ContextMenu _panelMenu(BuildContext context) {
     return ContextMenu(
-      icon: Icon(Icons.more_horiz),
+      icon: Icon(
+        Icons.more_horiz,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
       showOnTap: true,
       menuItems: [
         ContextMenuItem(

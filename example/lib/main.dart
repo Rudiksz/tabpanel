@@ -2,38 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:tabpanel/tabpanel.dart';
 
 void main() async {
-  final tabPanel = TabPanel(
-    defaultPage: PageA(),
+  final tabPanel = TabPanel(defaultPage: PageA());
+
+  runApp(
+    MaterialApp(
+      home: TabPanelWidget(tabPanel),
+    ),
   );
-
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    themeMode: ThemeMode.dark,
-    theme: ThemeData.dark(),
-    home: HomeWidget(tabPanel: tabPanel),
-  ));
-}
-
-class HomeWidget extends StatelessWidget {
-  const HomeWidget({
-    Key key,
-    @required this.tabPanel,
-  }) : super(key: key);
-
-  final TabPanel tabPanel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: TabPanelTheme(
-        data: TabPanelThemeData(
-          dividerWidth: 4,
-          dividerColor: Theme.of(context).colorScheme.onSurface,
-        ),
-        child: TabPanelWidget(tabPanel),
-      ),
-    );
-  }
 }
 
 class PageA extends StatelessWidget {

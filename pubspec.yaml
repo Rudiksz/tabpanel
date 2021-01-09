@@ -1,8 +1,8 @@
 name: tabpanel
-description: Nestable panels with support for tabs and pages
-version: 0.0.1
+description: Tabbed inferface with support for nested and resizeable panels.
+version: 0.1.0
 author: Rudolf Martincsek
-homepage:
+homepage: https://github.com/Rudiksz/tabpanel
 
 environment:
   sdk: '>=2.9.0-0 <3.0.0'

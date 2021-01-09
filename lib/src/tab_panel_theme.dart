@@ -16,8 +16,8 @@ class TabPanelThemeData with Diagnosticable {
   /// Creates a theme that can be used for [TabPanelTheme] or
   /// [ThemeData.bannerTheme].
   const TabPanelThemeData({
-    this.dividerColor = const Color.fromARGB(255, 40, 40, 40),
-    this.dividerWidth = 15.0,
+    this.dividerColor,
+    this.dividerWidth = 4.0,
   });
 
   /// The color of the divider which acts as a drag handle to resize the panel.
