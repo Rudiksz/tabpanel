@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide Tab;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 import 'package:tabpanel/src/tab_panel_theme.dart';
 import 'context_menu.dart';
 import 'tab_panel.dart';
@@ -70,50 +69,7 @@ class TabPanelWidget extends StatelessWidget {
           return LayoutBuilder(builder: (context, constraints) {
             final tabPanelTheme = TabPanelTheme.of(context);
 
-            final axisSize = panel.axis == Axis.horizontal
-                ? constraints.maxWidth
-                : constraints.maxHeight;
-
-            // Calculate panel sizes, if we have to
-            if (panels != null) {
-              // Calculate new sizes if:
-              //  1. it's the first layout or
-              //  2. the number of panels changed
-              if ((panel.panelSizes?.isEmpty ?? true) ||
-                  panel.panelSizes.length != panelsCount) {
-                panel.panelSizes = List.filled(
-                  panelsCount,
-                  (axisSize - tabPanelTheme.dividerWidth * (panelsCount - 1)) /
-                      panelsCount,
-                ).asObservable();
-              }
-              // Otherwise, resize the panels keeping their aspect ratios
-              else {
-                var newAxisSize = (panel.axis == Axis.horizontal
-                    ? constraints?.maxWidth
-                    : constraints?.maxHeight);
-                final panelSize = panel.axis == Axis.horizontal
-                    ? panel.constraints?.maxWidth
-                    : panel.constraints?.maxHeight;
-                if (newAxisSize != panelSize) {
-                  // Adjust the new container size to account for the the separators
-                  newAxisSize -= tabPanelTheme.dividerWidth * (panelsCount - 1);
-
-                  // To account for rounding errors, the last panel should take up
-                  // the remaining available space, this accumulates the amount of space used up
-                  var usedSize = 0.0;
-                  for (var i = 0; i < panel.panelSizes.length; i++) {
-                    if (i != panel.panelSizes.length - 1) {
-                      panel.panelSizes[i] =
-                          panel.panelSizes[i] * newAxisSize / panelSize;
-                      usedSize += panel.panelSizes[i];
-                    } else {
-                      panel.panelSizes[i] = newAxisSize - usedSize;
-                    }
-                  }
-                }
-              }
-            }
+            panel.calculatePanelSizes(constraints, tabPanelTheme.dividerWidth);
 
             // Store the constraints for later
             panel.constraints = constraints;
@@ -142,8 +98,9 @@ class TabPanelWidget extends StatelessWidget {
             for (var i = 0; i < panelsCount; i++) {
               children.add(
                 Observer(builder: (_) {
-                  final size =
-                      panel?.panelSizes != null ? panel?.panelSizes[i] : 100.0;
+                  final size = (panel?.panelSizes?.isNotEmpty ?? false)
+                      ? panel?.panelSizes[i]
+                      : 20.0;
                   return SizedBox(
                     height:
                         panel.axis == Axis.vertical ? size : double.infinity,
@@ -169,6 +126,7 @@ class TabPanelWidget extends StatelessWidget {
                 );
               }
             }
+
             return panel.axis == Axis.horizontal
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,44 +147,37 @@ class TabPanelWidget extends StatelessWidget {
 
         return Column(
           children: [
-            AppBar(
-              automaticallyImplyLeading: false,
-              // leadingWidth: 32,
-              elevation: 0,
-              toolbarHeight: 42,
-              titleSpacing: 0,
-              leading: IconButton(
-                icon: Icon(Icons.chevron_left),
-                onPressed: (selectedTab?.pages?.length ?? 0) > 1
-                    ? selectedTab.pop
-                    : null,
-              ),
-              actions: [_panelMenu(context)],
-              title: Row(
-                children: [
-                  // -- TabBar
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: panel.tabs
-                            .map((tab) => AppTabWidget(
-                                  tab,
-                                  selected: tab.id == selectedTab?.id,
-                                ))
-                            .toList(),
-                      ),
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.chevron_left),
+                  onPressed: (selectedTab?.pages?.length ?? 0) > 1
+                      ? selectedTab.pop
+                      : null,
+                ),
+                // -- TabBar
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: panel.tabs
+                          .map((tab) => TabWidget(
+                                tab,
+                                selected: tab.id == selectedTab?.id,
+                              ))
+                          .toList(),
                     ),
                   ),
-                ],
-              ),
+                ),
+                _panelMenu(context),
+              ],
             ),
             Expanded(
               child: ParentTab(
                 tab: selectedTab,
                 child: ((selectedTab?.pages?.isNotEmpty ?? false) &&
-                        selectedTab?.pages?.last?.body != null)
-                    ? selectedTab?.pages?.last?.body
+                        selectedTab?.pages?.last != null)
+                    ? selectedTab?.pages?.last
                     : EmptyPanel(panel),
                 // child: selectedTab?.pages?.last?.body ?? EmptyPanel(tabPanel), <- nullsafety version
               ),
@@ -289,7 +240,7 @@ class TabPanelWidget extends StatelessWidget {
           ContextMenuItem(
             title: Text('Close'),
             icon: Icon(Icons.close),
-            onPressed: () => panel.closePanel(panel.id),
+            onPressed: panel.closePanel,
           ),
         ],
       ],

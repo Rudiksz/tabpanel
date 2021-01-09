@@ -9,6 +9,21 @@ part of 'tab_panel.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$TabPanel on TabPanelBase, Store {
+  final _$idAtom = Atom(name: 'TabPanelBase.id');
+
+  @override
+  String get id {
+    _$idAtom.reportRead();
+    return super.id;
+  }
+
+  @override
+  set id(String value) {
+    _$idAtom.reportWrite(value, super.id, () {
+      super.id = value;
+    });
+  }
+
   final _$panelsAtom = Atom(name: 'TabPanelBase.panels');
 
   @override
@@ -155,11 +170,11 @@ mixin _$TabPanel on TabPanelBase, Store {
   }
 
   @override
-  void closePanel(String id) {
+  void closePanel() {
     final _$actionInfo = _$TabPanelBaseActionController.startAction(
         name: 'TabPanelBase.closePanel');
     try {
-      return super.closePanel(id);
+      return super.closePanel();
     } finally {
       _$TabPanelBaseActionController.endAction(_$actionInfo);
     }
@@ -234,6 +249,7 @@ mixin _$TabPanel on TabPanelBase, Store {
   @override
   String toString() {
     return '''
+id: ${id},
 panels: ${panels},
 panelSizes: ${panelSizes},
 tabs: ${tabs},

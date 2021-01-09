@@ -36,13 +36,10 @@ class HomeWidget extends StatelessWidget {
   }
 }
 
-class PageA extends StatelessWidget with TabPageMixin {
-  @override
-  final String title = 'Page1';
+class PageA extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tab = ParentTab.of(context);
-    print(tab);
     return Column(
       children: [
         Icon(Icons.construction, size: 56),

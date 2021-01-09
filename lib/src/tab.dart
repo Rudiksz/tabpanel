@@ -14,17 +14,17 @@ abstract class TabBase with Store {
 
   TabBase({
     @required this.panel,
-    List<AppPage> pages,
+    List<Widget> pages,
     this.locked = false,
   }) {
-    this.pages = pages?.asObservable() ?? <AppPage>[].asObservable();
+    this.pages = pages?.asObservable() ?? <Widget>[].asObservable();
   }
 
   @observable
   bool locked = false;
 
   @observable
-  ObservableList<AppPage> pages = <AppPage>[].asObservable();
+  ObservableList<Widget> pages = <Widget>[].asObservable();
 
   @action
   void toggleLock() => locked = !locked;
@@ -49,29 +49,4 @@ abstract class TabBase with Store {
         title: title,
         forceNewTab: forceNewTab,
       );
-}
-
-class AppPage = AppPageBase with _$AppPage;
-
-abstract class AppPageBase with Store {
-  String id = uuid.v1().toString();
-
-  AppPageBase({
-    this.title = 'Home',
-    this.iconData = Icons.tab,
-    this.icon,
-    this.body,
-  });
-
-  @observable
-  IconData iconData;
-
-  @observable
-  Widget icon;
-
-  @observable
-  String title = '';
-
-  @observable
-  Widget body;
 }

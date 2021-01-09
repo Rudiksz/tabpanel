@@ -27,13 +27,13 @@ mixin _$Tab on TabBase, Store {
   final _$pagesAtom = Atom(name: 'TabBase.pages');
 
   @override
-  ObservableList<AppPage> get pages {
+  ObservableList<Widget> get pages {
     _$pagesAtom.reportRead();
     return super.pages;
   }
 
   @override
-  set pages(ObservableList<AppPage> value) {
+  set pages(ObservableList<Widget> value) {
     _$pagesAtom.reportWrite(value, super.pages, () {
       super.pages = value;
     });
@@ -87,78 +87,6 @@ mixin _$Tab on TabBase, Store {
     return '''
 locked: ${locked},
 pages: ${pages}
-    ''';
-  }
-}
-
-mixin _$AppPage on AppPageBase, Store {
-  final _$iconDataAtom = Atom(name: 'AppPageBase.iconData');
-
-  @override
-  IconData get iconData {
-    _$iconDataAtom.reportRead();
-    return super.iconData;
-  }
-
-  @override
-  set iconData(IconData value) {
-    _$iconDataAtom.reportWrite(value, super.iconData, () {
-      super.iconData = value;
-    });
-  }
-
-  final _$iconAtom = Atom(name: 'AppPageBase.icon');
-
-  @override
-  Widget get icon {
-    _$iconAtom.reportRead();
-    return super.icon;
-  }
-
-  @override
-  set icon(Widget value) {
-    _$iconAtom.reportWrite(value, super.icon, () {
-      super.icon = value;
-    });
-  }
-
-  final _$titleAtom = Atom(name: 'AppPageBase.title');
-
-  @override
-  String get title {
-    _$titleAtom.reportRead();
-    return super.title;
-  }
-
-  @override
-  set title(String value) {
-    _$titleAtom.reportWrite(value, super.title, () {
-      super.title = value;
-    });
-  }
-
-  final _$bodyAtom = Atom(name: 'AppPageBase.body');
-
-  @override
-  Widget get body {
-    _$bodyAtom.reportRead();
-    return super.body;
-  }
-
-  @override
-  set body(Widget value) {
-    _$bodyAtom.reportWrite(value, super.body, () {
-      super.body = value;
-    });
-  }
-
-  @override
-  String toString() {
-    return '''
-iconData: ${iconData},
-icon: ${icon},
-title: ${title},
-body: ${body}
     ''';
   }
 }

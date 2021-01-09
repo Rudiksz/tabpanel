@@ -6,12 +6,12 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'tab.dart';
 
-class AppTabWidget extends StatelessWidget {
+class TabWidget extends StatelessWidget {
   final Tab tab;
   final bool selected;
   final bool feedback;
 
-  const AppTabWidget(
+  const TabWidget(
     this.tab, {
     Key key,
     this.selected = false,
@@ -22,25 +22,22 @@ class AppTabWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final lastPage = tab.pages.isNotEmpty ? tab.pages.last : null;
 
+    final defaultIcon =
+        Icon(Icons.tab, color: Theme.of(context).colorScheme.onSurface);
     Widget icon;
     String title;
-    if (lastPage?.body is TabPageMixin) {
-      final tabPage = lastPage?.body as TabPageMixin;
+    if (lastPage is TabPageMixin) {
+      final tabPage = lastPage as TabPageMixin;
 
       icon = tabPage.iconData != null
           ? Icon(tabPage.iconData,
               color: Theme.of(context).colorScheme.onSurface)
-          : tabPage.icon;
+          : (tabPage.icon ?? defaultIcon);
 
-      title = tabPage.title;
+      title = tabPage.title ?? lastPage.runtimeType.toString();
     } else {
-      icon = lastPage?.icon != null
-          ? SizedBox(height: 40, child: lastPage?.icon)
-          : Icon(Icons.tab, color: Theme.of(context).colorScheme.onSurface);
-
-      title = lastPage != null && lastPage.title.isNotEmpty
-          ? lastPage.title
-          : 'Tab';
+      icon = defaultIcon;
+      title = lastPage.runtimeType.toString();
     }
 
     final _tab = Container(
@@ -66,7 +63,7 @@ class AppTabWidget extends StatelessWidget {
                 Draggable<Tab>(
                   data: tab,
                   child: icon,
-                  feedback: AppTabWidget(tab, feedback: true),
+                  feedback: TabWidget(tab, feedback: true),
                 ),
               SizedBox(width: 8),
               ConstrainedBox(
