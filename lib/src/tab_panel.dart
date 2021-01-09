@@ -254,8 +254,8 @@ abstract class TabPanelBase with Store {
             ? constraints?.maxWidth
             : constraints?.maxHeight);
         final panelSize = axis == Axis.horizontal
-            ? constraints?.maxWidth
-            : constraints?.maxHeight;
+            ? this.constraints?.maxWidth
+            : this.constraints?.maxHeight;
         if (newAxisSize != panelSize) {
           // Adjust the new container size to account for the the separators
           newAxisSize -= dividerWidth * (panels.length - 1);
