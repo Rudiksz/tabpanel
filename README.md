@@ -2,7 +2,9 @@
 
 Tabbed inferface with support for nested and resizeable panels.
 
-![screenshot](https://raw.githubusercontent.com/Rudiksz/tabpanel/main/screenshot.png)
+Video demo:
+
+[![](https://raw.githubusercontent.com/Rudiksz/tabpanel/main/screenshot.png)](https://youtu.be/hLpL0jUBDuM)
 
 # Example
 

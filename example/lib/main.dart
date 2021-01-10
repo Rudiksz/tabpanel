@@ -2,13 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:tabpanel/tabpanel.dart';
 
 void main() async {
-  final tabPanel = TabPanel(defaultPage: PageA());
+  runApp(App());
+}
 
-  runApp(
-    MaterialApp(
-      home: TabPanelWidget(tabPanel),
-    ),
-  );
+class App extends StatefulWidget {
+  @override
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  final tabPanel = TabPanel(defaultPage: PageA());
+  bool darkMode = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
+      home: Stack(
+        children: [
+          TabPanelWidget(tabPanel),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Card(
+              child: IconButton(
+                onPressed: () => setState(() => darkMode = !darkMode),
+                icon:
+                    Icon(darkMode ? Icons.lightbulb : Icons.lightbulb_outlined),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class PageA extends StatelessWidget {
