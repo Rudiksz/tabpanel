@@ -1,6 +1,6 @@
 name: tabpanel
 description: Tabbed inferface with support for nested and resizeable panels.
-version: 0.2.0
+version: 0.2.0-nullsafety.2
 homepage: https://github.com/Rudiksz/tabpanel
 
 environment:

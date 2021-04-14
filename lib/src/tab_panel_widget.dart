@@ -96,6 +96,7 @@ class TabPanelWidget extends StatelessWidget {
                 if (i != panelsCount - 1) {
                   children.add(
                     Draggable(
+                      data: 1,
                       maxSimultaneousDrags: 1,
                       axis: panel.axis,
                       affinity: panel.axis,

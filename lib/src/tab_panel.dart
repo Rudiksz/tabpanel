@@ -224,10 +224,9 @@ abstract class TabPanelBase with Store {
     // Calculate new sizes if:
     //  1. it's the first layout or
     //  2. the number of panels changed
-    var panelSizes = this.panelSizes;
     if (panelSizes == null ||
-        panelSizes.isEmpty ||
-        panelSizes.length != panels.length) {
+        panelSizes!.isEmpty ||
+        panelSizes!.length != panels.length) {
       panelSizes = List.filled(
         panels.length,
         (axisSize - dividerWidth * (panels.length - 1)) / panels.length,
@@ -249,12 +248,12 @@ abstract class TabPanelBase with Store {
         // To account for rounding errors, the last panel should take up
         // the remaining available space, this accumulates the amount of space used up
         var usedSize = 0.0;
-        for (var i = 0; i < panelSizes.length; i++) {
-          if (i != panelSizes.length - 1) {
-            panelSizes[i] = panelSizes[i] * newAxisSize / panelSize;
-            usedSize += panelSizes[i];
+        for (var i = 0; i < panelSizes!.length; i++) {
+          if (i != panelSizes!.length - 1) {
+            panelSizes![i] = panelSizes![i] * newAxisSize / panelSize;
+            usedSize += panelSizes![i];
           } else {
-            panelSizes[i] = newAxisSize - usedSize;
+            panelSizes![i] = newAxisSize - usedSize;
           }
         }
       }
