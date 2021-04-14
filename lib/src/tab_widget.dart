@@ -13,7 +13,7 @@ class TabWidget extends StatelessWidget {
 
   const TabWidget(
     this.tab, {
-    Key key,
+    Key? key,
     this.selected = false,
     this.feedback = false,
   }) : super(key: key);
@@ -32,12 +32,12 @@ class TabWidget extends StatelessWidget {
       icon = tabPage.iconData != null
           ? Icon(tabPage.iconData,
               color: Theme.of(context).colorScheme.onSurface)
-          : (tabPage.icon ?? defaultIcon);
+          : tabPage.icon;
 
-      title = tabPage.title ?? lastPage.runtimeType.toString();
+      title = tabPage.title;
     } else {
       icon = defaultIcon;
-      title = lastPage?.runtimeType?.toString() ?? 'Tab';
+      title = lastPage?.runtimeType.toString() ?? 'Tab';
     }
 
     final _tab = Container(
@@ -62,8 +62,8 @@ class TabWidget extends StatelessWidget {
               else
                 Draggable<Tab>(
                   data: tab,
-                  child: icon,
                   feedback: TabWidget(tab, feedback: true),
+                  child: icon,
                 ),
               SizedBox(width: 8),
               ConstrainedBox(
@@ -85,7 +85,7 @@ class TabWidget extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.close),
                   onPressed:
-                      !tab.locked ? () => tab.panel?.closeTab(tab.id) : null,
+                      !tab.locked ? () => tab.panel.closeTab(tab.id) : null,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               SizedBox(width: 8),
@@ -101,11 +101,6 @@ class TabWidget extends StatelessWidget {
     return Observer(builder: (_) {
       final isLocked = tab.locked;
       return ContextMenu(
-        child: InkWell(
-          onTap: () => tab.panel.selectTab(tab.id),
-          child: _tab,
-        ),
-        menuWidth: 250,
         menuItems: [
           ContextMenuItem(
             title: Text(isLocked ? 'Unlock' : 'Lock'),
@@ -133,7 +128,7 @@ class TabWidget extends StatelessWidget {
               icon: Icon(Icons.close),
               onPressed: () => tab.panel.closeTab(tab.id),
             ),
-          if ((tab.panel?.tabs?.length ?? 0) > 1) ...[
+          if (tab.panel.tabs.length > 1) ...[
             ContextMenuItem(
               title: Text('Close others'),
               icon: Icon(Icons.remove_circle),
@@ -151,6 +146,10 @@ class TabWidget extends StatelessWidget {
             ),
           ]
         ],
+        child: InkWell(
+          onTap: () => tab.panel.selectTab(tab.id),
+          child: _tab,
+        ),
       );
     });
   }

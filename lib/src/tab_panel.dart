@@ -15,27 +15,21 @@ abstract class TabPanelBase with Store {
   String id = uuid.v4().toString();
 
   /// The parent panel
-  TabPanel parent;
+  TabPanel? parent;
 
   /// The layout constraints are used to check when to recalculate the sizes of the
   /// child panels
-  BoxConstraints constraints;
+  BoxConstraints? constraints;
 
   TabPanelBase({
     this.parent,
-    this.panels,
-    this.panelSizes,
-    List<Tab> tabs,
+    List<TabPanel> panels = const <TabPanel>[],
+    List<Tab> tabs = const <Tab>[],
     this.axis = Axis.horizontal,
-    @required this.defaultPage,
-  }) {
-    assert(
-      defaultPage != null,
-      'A TabPanel should have a default page set that allows the user to navigate,'
-      ' to your pages. It can be a landing page, your home page, a menu, etc...',
-    );
-    this.tabs = tabs?.asObservable() ?? <Tab>[].asObservable();
-  }
+    required this.defaultPage,
+    this.panelSizes,
+  })  : tabs = tabs.asObservable(),
+        panels = panels.asObservable();
 
   /// Widget to display when a new tab is opened in this tab
   Widget defaultPage;
@@ -46,7 +40,7 @@ abstract class TabPanelBase with Store {
 
   /// The sizes of the child panels
   @observable
-  ObservableList<double> panelSizes;
+  ObservableList<double>? panelSizes;
 
   /// Tabs of this panel. Ignored if [panels] is not empty.
   @observable
@@ -63,34 +57,35 @@ abstract class TabPanelBase with Store {
   /// Splits the current panel in two, moving the tabs to the one specified by [position]
   @action
   void splitPanel({
-    String panelId,
-    String tabId,
-    Axis axis,
-    TabPosition position,
+    required String panelId,
+    String? tabId,
+    Axis axis = Axis.horizontal,
+    TabPosition? position,
   }) {
-    final newPanel = TabPanel(parent: this, defaultPage: defaultPage);
+    final newPanel =
+        TabPanel(parent: this as TabPanel, defaultPage: defaultPage);
 
     // If the panel has a parent with the same axis as the one requested,
     // we insert a new panel into the parent instead of splitting this one
     if (parent != null &&
-        parent.axis == axis &&
-        (parent.panels?.isNotEmpty ?? false)) {
+        parent?.axis == axis &&
+        (parent?.panels.isNotEmpty ?? false)) {
       newPanel.parent = parent;
-      final index = parent.panels.indexWhere((element) => element.id == id);
+      final index = parent!.panels.indexWhere((element) => element.id == id);
       if (index == -1) {
-        parent.panels.add(newPanel);
+        parent!.panels.add(newPanel);
       } else {
-        parent.panels.insert(index, newPanel);
+        parent!.panels.insert(index, newPanel);
       }
       return;
     }
 
-    if (panels?.isEmpty ?? true) {
+    if (panels.isEmpty) {
       this.axis = axis;
 
       // Create a copy of the current panel, and update its tabs to point to the new panel
       final oldPanel = TabPanel(
-        parent: this,
+        parent: this as TabPanel,
         tabs: tabs,
         defaultPage: defaultPage,
       );
@@ -146,10 +141,13 @@ abstract class TabPanelBase with Store {
   /// Close the panel including all its tabs
   @action
   void closePanel() {
-    parent?.panels?.removeWhere((element) => element.id == id);
+    final parent = this.parent;
+    if (parent == null) return;
+
+    parent.panels.removeWhere((element) => element.id == id);
 
     // If only one child panel is left, then we "flatten" it
-    if (parent?.panels?.length == 1) {
+    if (parent.panels.length == 1) {
       // Move the tab
       parent.tabs = parent.panels.first.tabs;
       parent.selectedTab = parent.panels.first.selectedTab;
@@ -159,27 +157,26 @@ abstract class TabPanelBase with Store {
       parent.panels.first.parent = parent.parent;
 
       parent.panels = parent.panels.first.panels;
-      parent.panels?.forEach((p) => p.parent = parent);
+      parent.panels.forEach((p) => p.parent = parent);
       parent.panelSizes = <double>[].asObservable();
     }
   }
 
   /// Callback to check if a dragged [tab] is acceptable by the current panel.
-  bool willAcceptTab(Tab tab) =>
-      (panels?.isEmpty ?? true) && id != tab.panel.id;
+  bool willAcceptTab(Tab? tab) => panels.isEmpty && id != tab?.panel.id;
 
   /// Move the dragged [tab] to this panel.
   void acceptTab(Tab tab) {
     tab.panel.closeTab(tab.id);
     tabs.add(tab);
     selectedTab = tabs.length - 1;
-    tab.panel = this;
+    tab.panel = this as TabPanel;
   }
 
   /// Open a new tab with [page] as the body.
   @action
   void newTab({
-    Widget page,
+    Widget? page,
     String tabId = '',
     TabPosition position = TabPosition.after,
   }) {
@@ -196,7 +193,7 @@ abstract class TabPanelBase with Store {
     tabs.insert(
       selectedTab,
       Tab(
-        panel: this,
+        panel: this as TabPanel,
         pages: [page ?? defaultPage].asObservable(),
       ),
     );
@@ -205,7 +202,7 @@ abstract class TabPanelBase with Store {
   /// Push a [page] to the current tab.
   @action
   void pushPage({
-    Widget page,
+    Widget? page,
     bool forceNewTab = false,
   }) {
     if (tabs.isNotEmpty && !tabs[selectedTab].locked && !forceNewTab) {
@@ -218,44 +215,46 @@ abstract class TabPanelBase with Store {
   /// Calculates the sizes of the child panel when they change, or when the parent
   /// viewport dimensions change
   void calculatePanelSizes(BoxConstraints constraints, double dividerWidth) {
-    if (panels?.isEmpty ?? true) return;
+    if (panels.isEmpty) return;
 
     final axisSize =
         axis == Axis.horizontal ? constraints.maxWidth : constraints.maxHeight;
 
     // Calculate panel sizes, if we have to
-    if (panels != null) {
-      // Calculate new sizes if:
-      //  1. it's the first layout or
-      //  2. the number of panels changed
-      if ((panelSizes?.isEmpty ?? true) || panelSizes.length != panels.length) {
-        panelSizes = List.filled(
-          panels.length,
-          (axisSize - dividerWidth * (panels.length - 1)) / panels.length,
-        ).asObservable();
-      }
-      // Otherwise, resize the panels keeping their aspect ratios
-      else {
-        var newAxisSize = (axis == Axis.horizontal
-            ? constraints?.maxWidth
-            : constraints?.maxHeight);
-        final panelSize = axis == Axis.horizontal
-            ? this.constraints?.maxWidth
-            : this.constraints?.maxHeight;
-        if (newAxisSize != panelSize) {
-          // Adjust the new container size to account for the the separators
-          newAxisSize -= dividerWidth * (panels.length - 1);
+    // Calculate new sizes if:
+    //  1. it's the first layout or
+    //  2. the number of panels changed
+    var panelSizes = this.panelSizes;
+    if (panelSizes == null ||
+        panelSizes.isEmpty ||
+        panelSizes.length != panels.length) {
+      panelSizes = List.filled(
+        panels.length,
+        (axisSize - dividerWidth * (panels.length - 1)) / panels.length,
+      ).asObservable();
+    }
+    // Otherwise, resize the panels keeping their aspect ratios
+    else {
+      var newAxisSize = (axis == Axis.horizontal
+          ? constraints.maxWidth
+          : constraints.maxHeight);
+      final panelSize = (axis == Axis.horizontal
+              ? this.constraints?.maxWidth
+              : this.constraints?.maxHeight) ??
+          newAxisSize;
+      if (newAxisSize != panelSize) {
+        // Adjust the new container size to account for the the separators
+        newAxisSize -= dividerWidth * (panels.length - 1);
 
-          // To account for rounding errors, the last panel should take up
-          // the remaining available space, this accumulates the amount of space used up
-          var usedSize = 0.0;
-          for (var i = 0; i < panelSizes.length; i++) {
-            if (i != panelSizes.length - 1) {
-              panelSizes[i] = panelSizes[i] * newAxisSize / panelSize;
-              usedSize += panelSizes[i];
-            } else {
-              panelSizes[i] = newAxisSize - usedSize;
-            }
+        // To account for rounding errors, the last panel should take up
+        // the remaining available space, this accumulates the amount of space used up
+        var usedSize = 0.0;
+        for (var i = 0; i < panelSizes.length; i++) {
+          if (i != panelSizes.length - 1) {
+            panelSizes[i] = panelSizes[i] * newAxisSize / panelSize;
+            usedSize += panelSizes[i];
+          } else {
+            panelSizes[i] = newAxisSize - usedSize;
           }
         }
       }
@@ -265,12 +264,15 @@ abstract class TabPanelBase with Store {
   /// Resize the child panels when the user is draggin the using the panel dividers.
   @action
   void updateSize(int index, DragUpdateDetails dragDetails) {
+    if (panelSizes == null || panelSizes!.length <= index) return;
+
     final delta =
         axis == Axis.vertical ? dragDetails.delta.dy : dragDetails.delta.dx;
 
-    if (panelSizes[index] + delta > 50 && panelSizes[index + 1] - delta > 50) {
-      panelSizes[index] += delta;
-      panelSizes[index + 1] -= delta;
+    if (panelSizes![index] + delta > 50 &&
+        panelSizes![index + 1] - delta > 50) {
+      panelSizes![index] += delta;
+      panelSizes![index + 1] -= delta;
     }
   }
 }
@@ -301,6 +303,6 @@ enum TabPosition { before, after }
 /// ```
 mixin TabPageMixin {
   final Widget icon = Icon(null);
-  final IconData iconData = null;
+  final IconData? iconData = null;
   final String title = '';
 }

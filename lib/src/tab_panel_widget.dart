@@ -30,7 +30,7 @@ class TabPanelWidget extends StatelessWidget {
 
   const TabPanelWidget(
     this.panel, {
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -41,9 +41,9 @@ class TabPanelWidget extends StatelessWidget {
       builder: (_, __, ___) => Material(
         child: Observer(builder: (_) {
           final panels = panel.panels;
-          final panelsCount = panels?.length ?? 0;
+          final panelsCount = panels.length;
 
-          if (panels?.isNotEmpty ?? false) {
+          if (panels.isNotEmpty) {
             return LayoutBuilder(builder: (context, constraints) {
               final tabPanelTheme = TabPanelTheme.of(context);
 
@@ -60,11 +60,7 @@ class TabPanelWidget extends StatelessWidget {
                       child: Container(
                         height: tabPanelTheme.dividerWidth,
                         width: constraints.maxWidth,
-                        color: tabPanelTheme.dividerColor ??
-                            Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.5),
+                        color: tabPanelTheme.dividerColor,
                       ),
                     )
                   : MouseRegion(
@@ -72,11 +68,7 @@ class TabPanelWidget extends StatelessWidget {
                       child: Container(
                         width: tabPanelTheme.dividerWidth,
                         height: constraints.maxHeight,
-                        color: tabPanelTheme.dividerColor ??
-                            Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.5),
+                        color: tabPanelTheme.dividerColor,
                       ),
                     );
 
@@ -85,8 +77,8 @@ class TabPanelWidget extends StatelessWidget {
               for (var i = 0; i < panelsCount; i++) {
                 children.add(
                   Observer(builder: (_) {
-                    final size = (panel?.panelSizes?.isNotEmpty ?? false)
-                        ? panel?.panelSizes[i]
+                    final size = (panel.panelSizes?.isNotEmpty ?? false)
+                        ? panel.panelSizes![i]
                         : 20.0;
                     return SizedBox(
                       height:
@@ -105,11 +97,11 @@ class TabPanelWidget extends StatelessWidget {
                   children.add(
                     Draggable(
                       maxSimultaneousDrags: 1,
-                      child: divider,
                       axis: panel.axis,
                       affinity: panel.axis,
                       feedback: SizedBox.shrink(),
                       onDragUpdate: (details) => panel.updateSize(i, details),
+                      child: divider,
                     ),
                   );
                 }
@@ -139,8 +131,8 @@ class TabPanelWidget extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: Icon(Icons.chevron_left),
-                    onPressed: (selectedTab?.pages?.length ?? 0) > 1
-                        ? selectedTab.pop
+                    onPressed: (selectedTab?.pages.length ?? 0) > 1
+                        ? selectedTab!.pop
                         : null,
                   ),
                   // -- TabBar
@@ -165,14 +157,12 @@ class TabPanelWidget extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(.2),
               ),
               Expanded(
-                child: ParentTab(
-                  tab: selectedTab,
-                  child: ((selectedTab?.pages?.isNotEmpty ?? false) &&
-                          selectedTab?.pages?.last != null)
-                      ? selectedTab?.pages?.last
-                      : EmptyPanel(panel),
-                  // child: selectedTab?.pages?.last?.body ?? EmptyPanel(tabPanel), <- nullsafety version
-                ),
+                child: selectedTab != null
+                    ? ParentTab(
+                        tab: selectedTab,
+                        child: selectedTab.pages.last,
+                      )
+                    : EmptyPanel(panel),
               ),
             ],
           );
@@ -247,17 +237,18 @@ class TabPanelWidget extends StatelessWidget {
 class ParentTab extends InheritedWidget {
   final Tab tab;
   const ParentTab({
-    Key key,
-    @required this.tab,
-    @required Widget child,
+    Key? key,
+    required this.tab,
+    required Widget child,
   }) : super(key: key, child: child);
 
   @override
   bool updateShouldNotify(covariant ParentTab oldWidget) =>
-      oldWidget.tab?.id != tab?.id;
+      oldWidget.tab.id != tab.id;
 
+  // TODO uggh
   static Tab of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<ParentTab>()?.tab;
+      context.dependOnInheritedWidgetOfExactType<ParentTab>()!.tab;
 }
 
 class EmptyPanel extends StatelessWidget {

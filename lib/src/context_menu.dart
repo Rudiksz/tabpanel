@@ -3,20 +3,18 @@ import 'package:flutter/material.dart';
 
 @immutable
 class ContextMenu extends StatefulWidget {
-  final Widget child;
-  final Widget icon;
-  final double menuWidth;
+  final Widget? child;
+  final Widget? icon;
   final List<ContextMenuItem> menuItems;
   final double bottomOffsetHeight;
   final double menuOffset;
   final bool showOnTap;
 
   const ContextMenu({
-    Key key,
-    @required this.menuItems,
+    Key? key,
+    required this.menuItems,
     this.icon,
     this.child,
-    this.menuWidth,
     this.bottomOffsetHeight = 0,
     this.menuOffset = 0,
     this.showOnTap = false,
@@ -51,7 +49,7 @@ class _ContextMenuState extends State<ContextMenu> {
       onLongPress: _showMenu,
       child: widget.icon != null
           ? IconButton(
-              icon: widget.icon,
+              icon: widget.icon!,
               onPressed: widget.showOnTap ? _showMenu : () {},
               color: Theme.of(context).colorScheme.onPrimary,
             )
@@ -122,6 +120,10 @@ class _ContextMenuState extends State<ContextMenu> {
                                 }
 
                                 return InkWell(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    item.onPressed?.call();
+                                  },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 8.0),
@@ -132,18 +134,14 @@ class _ContextMenuState extends State<ContextMenu> {
                                       children: [
                                         SizedBox(width: 8),
                                         if (item.icon != null) ...[
-                                          item.icon,
+                                          item.icon!,
                                           SizedBox(width: 8)
                                         ],
-                                        Expanded(child: item.title),
+                                        Expanded(child: item.title ?? Text('')),
                                         SizedBox(width: 8)
                                       ],
                                     ),
                                   ),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    item.onPressed?.call();
-                                  },
                                 );
                               }).toList(),
                             ),
@@ -165,13 +163,13 @@ class _ContextMenuState extends State<ContextMenu> {
 }
 
 class ContextMenuItem {
-  final title;
+  final Widget? title;
 
-  final icon;
+  final Widget? icon;
 
-  final Function() onPressed;
+  final Function()? onPressed;
 
-  final Widget child;
+  final Widget? child;
 
   ContextMenuItem({
     this.title,

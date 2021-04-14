@@ -42,13 +42,13 @@ mixin _$TabPanel on TabPanelBase, Store {
   final _$panelSizesAtom = Atom(name: 'TabPanelBase.panelSizes');
 
   @override
-  ObservableList<double> get panelSizes {
+  ObservableList<double>? get panelSizes {
     _$panelSizesAtom.reportRead();
     return super.panelSizes;
   }
 
   @override
-  set panelSizes(ObservableList<double> value) {
+  set panelSizes(ObservableList<double>? value) {
     _$panelSizesAtom.reportWrite(value, super.panelSizes, () {
       super.panelSizes = value;
     });
@@ -103,7 +103,10 @@ mixin _$TabPanel on TabPanelBase, Store {
 
   @override
   void splitPanel(
-      {String panelId, String tabId, Axis axis, TabPosition position}) {
+      {required String panelId,
+      String? tabId,
+      Axis axis = Axis.horizontal,
+      TabPosition? position}) {
     final _$actionInfo = _$TabPanelBaseActionController.startAction(
         name: 'TabPanelBase.splitPanel');
     try {
@@ -182,7 +185,7 @@ mixin _$TabPanel on TabPanelBase, Store {
 
   @override
   void newTab(
-      {Widget page,
+      {Widget? page,
       String tabId = '',
       TabPosition position = TabPosition.after}) {
     final _$actionInfo =
@@ -195,7 +198,7 @@ mixin _$TabPanel on TabPanelBase, Store {
   }
 
   @override
-  void pushPage({Widget page, bool forceNewTab = false}) {
+  void pushPage({Widget? page, bool forceNewTab = false}) {
     final _$actionInfo = _$TabPanelBaseActionController.startAction(
         name: 'TabPanelBase.pushPage');
     try {

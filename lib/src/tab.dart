@@ -15,11 +15,11 @@ abstract class TabBase with Store {
   TabPanel panel;
 
   TabBase({
-    @required this.panel,
-    List<Widget> pages,
+    required this.panel,
+    List<Widget> pages = const [],
     this.locked = false,
   }) {
-    this.pages = pages?.asObservable() ?? <Widget>[].asObservable();
+    this.pages = pages.asObservable();
   }
 
   /// When locked, the tab cannot be closed by conventional means

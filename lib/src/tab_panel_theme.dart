@@ -16,7 +16,7 @@ class TabPanelThemeData with Diagnosticable {
   /// Creates a theme that can be used for [TabPanelTheme] or
   /// [ThemeData.bannerTheme].
   const TabPanelThemeData({
-    this.dividerColor,
+    this.dividerColor = Colors.black54,
     this.dividerWidth = 4.0,
   });
 
@@ -29,8 +29,8 @@ class TabPanelThemeData with Diagnosticable {
   /// Creates a copy of this object with the given fields replaced with the
   /// new values.
   TabPanelThemeData copyWith({
-    Color dividerColor,
-    double dividerWidth,
+    Color? dividerColor,
+    double? dividerWidth,
   }) {
     return TabPanelThemeData(
       dividerColor: dividerColor ?? this.dividerColor,
@@ -46,9 +46,9 @@ class TabPanelThemeData with Diagnosticable {
   static TabPanelThemeData lerp(
       TabPanelThemeData a, TabPanelThemeData b, double t) {
     return TabPanelThemeData(
-        dividerColor: Color.lerp(a?.dividerColor, b?.dividerColor, t) ??
-            Colors.transparent,
-        dividerWidth: lerpDouble(a?.dividerWidth, b?.dividerWidth, t) ?? 4);
+        dividerColor:
+            Color.lerp(a.dividerColor, b.dividerColor, t) ?? Colors.transparent,
+        dividerWidth: lerpDouble(a.dividerWidth, b.dividerWidth, t) ?? 4);
   }
 
   @override
@@ -83,9 +83,9 @@ class TabPanelTheme extends InheritedTheme {
   /// Creates a banner theme that controls the configurations for
   /// [MaterialBanner]s in its widget subtree.
   const TabPanelTheme({
-    Key key,
-    this.data,
-    @required Widget child,
+    Key? key,
+    required this.data,
+    required Widget child,
   }) : super(key: key, child: child);
 
   /// The properties for descendant [MaterialBanner] widgets.
