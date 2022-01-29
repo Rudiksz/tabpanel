@@ -1,3 +1,7 @@
+## 0.2.3
+* Add `flex` property to `TabPanel` to control initial space used by the tab when it is a child panel
+* Fixed a bug where panels were not resized correctly when resizing the window
+
 ## 0.2.2
 * Export tab.dart too
 

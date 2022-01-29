@@ -1,7 +1,6 @@
 import 'context_menu.dart';
 import 'tab_panel.dart';
 import 'package:flutter/material.dart' hide Tab;
-import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'tab.dart';

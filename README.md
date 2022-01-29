@@ -6,13 +6,46 @@ Video demo:
 
 [![](https://raw.githubusercontent.com/Rudiksz/tabpanel/main/screenshot.png)](https://youtu.be/hLpL0jUBDuM)
 
-**Note: Requires Flutter's master channel for the time being**
-
 # Example
 
 ```dart
 void main() async {
-  final tabPanel = TabPanel(defaultPage: YourDefaultPage());
+  // One initial panel
+  // final tabPanel = TabPanel(defaultPage: YourDefaultPage());
+
+  // or Create a more complex initial tab structure
+  final tabPanel = TabPanel(
+    defaultPage: PageA(),
+    panels: [
+      TabPanel(
+        defaultPage: PageA(),
+        panels: [],
+        flex: 1,
+      ),
+      TabPanel(
+        defaultPage: PageA(),
+        axis: Axis.vertical,
+        panels: [
+          TabPanel(
+            defaultPage: PageA(),
+            panels: [],
+            flex: 3,
+          ),
+          TabPanel(
+            defaultPage: PageA(),
+            panels: [],
+            flex: 1,
+          ),
+        ],
+        flex: 2,
+      ),
+      TabPanel(
+        defaultPage: PageA(),
+        panels: [],
+        flex: 1,
+      ),
+    ],
+  );
 
   runApp(
     MaterialApp(

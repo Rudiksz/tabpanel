@@ -4,7 +4,6 @@ import 'package:flutter/material.dart' hide Tab;
 import 'package:mobx/mobx.dart';
 
 import '../tabpanel.dart';
-import 'tab.dart';
 
 part 'tab_panel.g.dart';
 
@@ -17,6 +16,9 @@ abstract class TabPanelBase with Store {
   /// The parent panel
   TabPanel? parent;
 
+  /// The initial flex factor to use when this panel is a child panel. Defaults to 1
+  double flex = 1;
+
   /// The layout constraints are used to check when to recalculate the sizes of the
   /// child panels
   BoxConstraints? constraints;
@@ -27,7 +29,7 @@ abstract class TabPanelBase with Store {
     List<Tab> tabs = const <Tab>[],
     this.axis = Axis.horizontal,
     required this.defaultPage,
-    this.panelSizes,
+    this.flex = 1,
   })  : tabs = tabs.asObservable(),
         panels = panels.asObservable();
 
@@ -224,40 +226,59 @@ abstract class TabPanelBase with Store {
     // Calculate new sizes if:
     //  1. it's the first layout or
     //  2. the number of panels changed
+
     if (panelSizes == null ||
         panelSizes!.isEmpty ||
         panelSizes!.length != panels.length) {
-      panelSizes = List.filled(
-        panels.length,
-        (axisSize - dividerWidth * (panels.length - 1)) / panels.length,
-      ).asObservable();
+      panelSizes = _computeInitialSizes(axisSize, dividerWidth);
     }
     // Otherwise, resize the panels keeping their aspect ratios
     else {
-      var newAxisSize = (axis == Axis.horizontal
+      var newPanelSize = (axis == Axis.horizontal
           ? constraints.maxWidth
           : constraints.maxHeight);
+
       final panelSize = (axis == Axis.horizontal
               ? this.constraints?.maxWidth
               : this.constraints?.maxHeight) ??
-          newAxisSize;
-      if (newAxisSize != panelSize) {
-        // Adjust the new container size to account for the the separators
-        newAxisSize -= dividerWidth * (panels.length - 1);
-
+          newPanelSize;
+      if (newPanelSize != panelSize) {
         // To account for rounding errors, the last panel should take up
         // the remaining available space, this accumulates the amount of space used up
         var usedSize = 0.0;
         for (var i = 0; i < panelSizes!.length; i++) {
           if (i != panelSizes!.length - 1) {
-            panelSizes![i] = panelSizes![i] * newAxisSize / panelSize;
+            panelSizes![i] = panelSizes![i] * newPanelSize / panelSize;
             usedSize += panelSizes![i];
           } else {
-            panelSizes![i] = newAxisSize - usedSize;
+            panelSizes![i] =
+                newPanelSize - dividerWidth * (panels.length - 1) - usedSize;
           }
         }
       }
     }
+  }
+
+  ObservableList<double> _computeInitialSizes(
+    double axisSize,
+    double dividerWidth,
+  ) {
+    final availableSpace = axisSize - dividerWidth * (panels.length - 1);
+    final totalFlex = panels.fold<double>(0.0, (v, p) => v + p.flex);
+    var sizes = List.filled(panels.length, availableSpace / panels.length);
+    if (totalFlex != 0 && totalFlex != panels.length) {
+      final spacePerFlex = availableSpace / totalFlex;
+      var allocatedSpace = 0.0;
+      for (var i = 0; i < panels.length - 1; i++) {
+        sizes[i] = panels[i].flex * spacePerFlex;
+        allocatedSpace += sizes[i];
+      }
+
+      var last = panels.length - 1;
+      sizes[last] = availableSpace - allocatedSpace;
+    }
+
+    return sizes.asObservable();
   }
 
   /// Resize the child panels when the user is draggin the using the panel dividers.

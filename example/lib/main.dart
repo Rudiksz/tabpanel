@@ -11,7 +11,39 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final tabPanel = TabPanel(defaultPage: PageA());
+  final tabPanel = TabPanel(
+    defaultPage: PageA(),
+    panels: [
+      TabPanel(
+        defaultPage: PageA(),
+        panels: [],
+        flex: 1,
+      ),
+      TabPanel(
+        defaultPage: PageA(),
+        axis: Axis.vertical,
+        panels: [
+          TabPanel(
+            defaultPage: PageA(),
+            panels: [],
+            flex: 3,
+          ),
+          TabPanel(
+            defaultPage: PageA(),
+            panels: [],
+            flex: 1,
+          ),
+        ],
+        flex: 2,
+      ),
+      TabPanel(
+        defaultPage: PageA(),
+        panels: [],
+        flex: 1,
+      ),
+    ],
+  );
+
   bool darkMode = false;
 
   @override

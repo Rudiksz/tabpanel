@@ -1,6 +1,6 @@
 name: tabpanel
 description: Tabbed inferface with support for nested and resizeable panels.
-version: 0.2.2
+version: 0.2.3
 homepage: https://github.com/Rudiksz/tabpanel
 
 environment:
@@ -10,10 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   uuid: ^3.0.4
-  mobx: ^2.0.0-nullsafety.5
-  flutter_mobx: ^2.0.0-nullsafety.3
+  mobx: ^2.0.6
+  flutter_mobx: ^2.0.3
 
 dev_dependencies:
   build_runner:
-  mobx_codegen: ^2.0.0-nullsafety.2
+  mobx_codegen: ^2.0.5
   pedantic: ^1.0.0
