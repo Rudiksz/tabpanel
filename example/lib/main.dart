@@ -22,16 +22,19 @@ class _AppState extends State<App> {
       TabPanel(
         defaultPage: PageA(),
         axis: Axis.vertical,
+        body: Container(color: Colors.blue),
         panels: [
           TabPanel(
             defaultPage: PageA(),
             panels: [],
             flex: 3,
+            body: Container(color: Colors.green),
           ),
           TabPanel(
             defaultPage: PageA(),
             panels: [],
             flex: 1,
+            body: Container(color: Colors.red),
           ),
         ],
         flex: 2,

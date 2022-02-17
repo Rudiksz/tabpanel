@@ -30,11 +30,15 @@ abstract class TabPanelBase with Store {
     this.axis = Axis.horizontal,
     required this.defaultPage,
     this.flex = 1,
+    this.body,
   })  : tabs = tabs.asObservable(),
         panels = panels.asObservable();
 
   /// Widget to display when a new tab is opened in this tab
   Widget defaultPage;
+
+  // Widget to display when a new tab is opened in this tab
+  Widget? body;
 
   /// Child panels
   @observable

@@ -1,3 +1,6 @@
+## 0.2.4
+* Add `body` property to `TabPanel` to set the widget to display when the panel has no tabs or child panels (ie. is empty)
+
 ## 0.2.3
 * Add `flex` property to `TabPanel` to control initial space used by the tab when it is a child panel
 * Fixed a bug where panels were not resized correctly when resizing the window

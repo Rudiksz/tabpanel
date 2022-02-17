@@ -163,7 +163,7 @@ class TabPanelWidget extends StatelessWidget {
                         tab: selectedTab,
                         child: selectedTab.pages.last,
                       )
-                    : EmptyPanel(panel),
+                    : (panel.body != null ? panel.body! : EmptyPanel(panel)),
               ),
             ],
           );

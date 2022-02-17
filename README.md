@@ -15,37 +15,40 @@ void main() async {
 
   // or Create a more complex initial tab structure
   final tabPanel = TabPanel(
-    defaultPage: PageA(),
-    panels: [
-      TabPanel(
-        defaultPage: PageA(),
-        panels: [],
-        flex: 1,
-      ),
-      TabPanel(
-        defaultPage: PageA(),
-        axis: Axis.vertical,
-        panels: [
-          TabPanel(
-            defaultPage: PageA(),
-            panels: [],
-            flex: 3,
-          ),
-          TabPanel(
-            defaultPage: PageA(),
-            panels: [],
-            flex: 1,
-          ),
-        ],
-        flex: 2,
-      ),
-      TabPanel(
-        defaultPage: PageA(),
-        panels: [],
-        flex: 1,
-      ),
-    ],
-  );
+      defaultPage: PageA(),
+      panels: [
+        TabPanel(
+          defaultPage: PageA(),
+          panels: [],
+          flex: 1,
+        ),
+        TabPanel(
+          defaultPage: PageA(),
+          axis: Axis.vertical,
+          body: Container(color: Colors.blue),
+          panels: [
+            TabPanel(
+              defaultPage: PageA(),
+              panels: [],
+              flex: 3,
+              body: Container(color: Colors.green),
+            ),
+            TabPanel(
+              defaultPage: PageA(),
+              panels: [],
+              flex: 1,
+              body: Container(color: Colors.red),
+            ),
+          ],
+          flex: 2,
+        ),
+        TabPanel(
+          defaultPage: PageA(),
+          panels: [],
+          flex: 1,
+        ),
+      ],
+    );
 
   runApp(
     MaterialApp(
